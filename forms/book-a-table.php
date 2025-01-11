@@ -77,7 +77,7 @@ function processStripePayment($amount, $stripeToken) {
     // Include Stripe PHP library
     require_once('vendor/autoload.php');
 
-    \Stripe\Stripe::setApiKey('sk_test_51PVx46P5hDtn4JMAF89bucyx3A4eBrmlC4jPWcjghvYemFPN6RCFd7TsvuyYpeh1y1tNCOzaWWDMniSNa8AC9TWc00lVTyX9sg'); // Replace with your Stripe secret key
+    \Stripe\Stripe::setApiKey(''); // Replace with your Stripe secret key
 
     try {
         $charge = \Stripe\Charge::create([

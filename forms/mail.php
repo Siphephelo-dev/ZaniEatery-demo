@@ -3,9 +3,9 @@
 error_reporting(0);
 
 // Include PHPMailer files
-require 'C:\xampp\htdocs\Restaurantly\Restaurantly\assets\vendor\PHPMailer-master\src\PHPMailer.php';
-require 'C:\xampp\htdocs\Restaurantly\Restaurantly\assets\vendor\PHPMailer-master\src\SMTP.php';
-require 'C:\xampp\htdocs\Restaurantly\Restaurantly\assets\vendor\PHPMailer-master\src\Exception.php';
+require 'C:\xampp\htdocs\Zani\Zani\assets\vendor\PHPMailer-master\src\PHPMailer.php';
+require 'C:\xampp\htdocs\Zani\Zani\assets\vendor\PHPMailer-master\src\SMTP.php';
+require 'C:\xampp\htdocs\Zani\Zani\assets\vendor\PHPMailer-master\src\Exception.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -19,43 +19,53 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mail = new PHPMailer(true);
 
     try {
-        $mail->SMTPDebug = 0; // Disable verbose debug output
-
+        // Enable debug mode to see what's happening
+        $mail->SMTPDebug = 0; 
+        
         $mail->isSMTP();
         $mail->SMTPAuth = true;
-
+        
         $mail->Host = "smtp.gmail.com";
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
-
+        
+        // Gmail credentials
         $mail->Username = "zanieatery9@gmail.com";
-        $mail->Password = "uwvpvucuahemxbod";
-
-        $mail->setFrom($email, $name);
+        $mail->Password = "ntzesqsmrdxzatao"; // Make sure this is an App Password
+        
+        // Properly set sender and recipient
+        $mail->setFrom("zanieatery9@gmail.com", "Zani Contact Form"); // Use fixed sender
+        $mail->addReplyTo($email, $name); // Add reply-to with user's email
         $mail->addAddress("zanieatery9@gmail.com", "Zani Eatery");
-
-        $mail->Subject = $subject;
-        $mail->Body = $message;
-
-        $mail->send();
-
-        // Clear POST data
+        
+        // Set email content with proper formatting
+        $mail->isHTML(true);
+        $mail->Subject = "Contact Form: " . $subject;
+        $mail->Body = "
+            <p><strong>Name:</strong> {$name}</p>
+            <p><strong>Email:</strong> {$email}</p>
+            <p><strong>Subject:</strong> {$subject}</p>
+            <p><strong>Message:</strong></p>
+            <p>{$message}</p>
+        ";
+        
+        // Add plain text version
+        $mail->AltBody = "From: {$name}\nEmail: {$email}\nSubject: {$subject}\nMessage: {$message}";
+        
+        if (!$mail->send()) {
+            throw new Exception($mail->ErrorInfo);
+        }
+        
         $_POST = array();
-
-        // Redirect to the index page with a success message
-        echo "
-        <script>
-            alert('Message was sent successfully!');
+        echo "<script>
+            alert('Message sent successfully!');
             window.location.href = 'http://localhost/Zani/Zani';
         </script>";
+        
     } catch (Exception $e) {
-        // Log the error message silently
-        error_log("Mailer Error: {$mail->ErrorInfo}");
-
-        // Redirect to the index page with a generic failure message
-        echo "
-        <script>
-            alert('Message could not be sent. Please try again later.');
+        error_log("Mail Error: " . $e->getMessage());
+        echo "<script>
+            alert('Message could not be sent. Error: " . str_replace("'", "\\'", $e->getMessage()) . "');
             window.location.href = 'http://localhost/Zani/Zani';
         </script>";
     }
